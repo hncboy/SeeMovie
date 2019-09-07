@@ -40,6 +40,10 @@ public class ResponseVO<T> {
         return new ResponseVO().setStatus(200).setData(object).setMessage("请求成功");
     }
 
+    public static <T> ResponseVO success(String message) {
+        return new ResponseVO().setStatus(200).setMessage(message).setMessage("请求成功");
+    }
+
     /**
      * 服务异常
      *

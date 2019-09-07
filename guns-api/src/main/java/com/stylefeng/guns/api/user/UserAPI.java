@@ -30,11 +30,11 @@ public interface UserAPI {
     boolean checkUsername(String username);
 
     /**
-     * 根据 uuid 查询用户信息
-     * @param uuid
+     * 根据 userId 查询用户信息
+     * @param userId
      * @return
      */
-    UserInfoModel getUserInfo(int uuid);
+    UserInfoModel getUserInfo(int userId);
 
     /**
      * 更新用户信息
