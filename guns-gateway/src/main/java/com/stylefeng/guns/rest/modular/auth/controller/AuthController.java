@@ -1,19 +1,14 @@
 package com.stylefeng.guns.rest.modular.auth.controller;
 
 import com.stylefeng.guns.api.user.UserAPI;
-import com.stylefeng.guns.core.exception.GunsException;
-import com.stylefeng.guns.rest.common.exception.BizExceptionEnum;
 import com.stylefeng.guns.rest.modular.auth.controller.dto.AuthRequest;
 import com.stylefeng.guns.rest.modular.auth.controller.dto.AuthResponse;
 import com.stylefeng.guns.rest.modular.auth.util.JwtTokenUtil;
-import com.stylefeng.guns.rest.modular.auth.validator.IReqValidator;
+import com.stylefeng.guns.rest.modular.vo.ResponseVO;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
 
 /**
  * 请求验证的
@@ -30,22 +25,18 @@ public class AuthController {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    @Resource(name = "simpleValidator")
-    private IReqValidator reqValidator;
-
     @RequestMapping(value = "${jwt.auth-path}")
-    public ResponseEntity<?> createAuthenticationToken(AuthRequest authRequest) {
+    public ResponseVO createAuthenticationToken(AuthRequest authRequest) {
+        // 去掉 guns 自带的用户名和密码验证
+        int userId = 3;//userAPI.login(authRequest.getUserName(), authRequest.getPassword());
 
-        userAPI.login(authRequest.getUserName(), authRequest.getPassword());
-
-        boolean validate = reqValidator.validate(authRequest);
-
-        if (validate) {
+        if (userId != 0) {
+            // 获取 randomKey 和 token
             final String randomKey = jwtTokenUtil.getRandomKey();
-            final String token = jwtTokenUtil.generateToken(authRequest.getUserName(), randomKey);
-            return ResponseEntity.ok(new AuthResponse(token, randomKey));
+            final String token = jwtTokenUtil.generateToken(String.valueOf(userId), randomKey);
+            return ResponseVO.success(new AuthResponse(token, randomKey));
         } else {
-            throw new GunsException(BizExceptionEnum.AUTH_REQUEST_ERROR);
+            return ResponseVO.serviceFail("用户名或密码错误");
         }
     }
 }
